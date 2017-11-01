@@ -1,0 +1,67 @@
+apply plugin: 'com.android.application'
+
+def ADB_PATH = "${android.getSdkDirectory()}/platform-tools/adb"
+
+android {
+
+    compileSdkVersion 26
+    buildToolsVersion "26.0.2"
+    defaultConfig {
+        applicationId "com.surcumference.wzry"
+        minSdkVersion 14
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0.0"
+        buildConfigField "String", "APP_PRODUCT_NAME", "\"WeChatFp\""
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+            zipAlignEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    repositories{
+        flatDir{
+            dirs 'libs'
+        }
+    }
+
+    packagingOptions {
+        exclude 'publicsuffixes.gz'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+task stopWangZheRongYao {
+    doLast {
+        println "Stop WangZheRongYao..."
+        exec {
+            executable = ADB_PATH
+            args = ['shell', "am force-stop com.tencent.tmgp.sgame"]
+        }
+    }
+}
+
+task debugWangZheRongYao(dependsOn: ["installDebug", stopWangZheRongYao]) {
+    doLast {
+        println "Start WangZheRongYao..."
+        exec {
+            executable = ADB_PATH
+            args = ['shell', "am start -n com.tencent.tmgp.sgame/com.tencent.tmgp.sgame.SGameActivity"]
+        }
+
+    }
+}
+
+
+dependencies {
+    provided 'de.robv.android.xposed:api:53'
+}
